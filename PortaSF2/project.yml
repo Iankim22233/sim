@@ -1,0 +1,86 @@
+name: PortaSF2
+options:
+  bundleIdPrefix: com.local
+  deploymentTarget:
+    macOS: "13.0"
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    ENABLE_HARDENED_RUNTIME: true
+    CODE_SIGN_STYLE: Automatic
+
+targets:
+  PortaSF2:
+    type: application
+    platform: macOS
+    sources:
+      - path: App
+      - path: Shared
+    info:
+      path: App/Info.plist
+      properties:
+        CFBundleDisplayName: PortaSF2
+        LSMinimumSystemVersion: "13.0"
+        LSApplicationCategoryType: public.app-category.music
+        NSHighResolutionCapable: true
+        NSHumanReadableCopyright: "Personal use."
+    entitlements:
+      path: App/PortaSF2.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        com.apple.security.files.user-selected.read-only: true
+        com.apple.security.temporary-exception.files.absolute-path.read-only:
+          - /Library/Audio/Sounds/Banks/
+        com.apple.security.temporary-exception.files.home-relative-path.read-only:
+          - /Library/Audio/Sounds/Banks/
+    settings:
+      base:
+        PRODUCT_NAME: PortaSF2
+        PRODUCT_BUNDLE_IDENTIFIER: com.local.portasf2
+    dependencies:
+      - target: PortaSF2Extension
+        embed: true
+        codeSign: true
+
+  PortaSF2Extension:
+    type: app-extension
+    platform: macOS
+    sources:
+      - path: Extension
+      - path: Shared
+    info:
+      path: Extension/Info.plist
+      properties:
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.AudioUnit-UI
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).AudioUnitViewController
+          NSExtensionAttributes:
+            AudioComponents:
+              - name: "Zsim: PortaSF2"
+                description: "SF2 sample player with a portamento glide slider."
+                manufacturer: Zsim
+                type: aumu
+                subtype: Pts2
+                version: 1
+                sandboxSafe: true
+                resourceUsage:
+                  network.client: false
+                tags:
+                  - Synthesizer
+                  - Sampler
+    entitlements:
+      path: Extension/PortaSF2Extension.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        com.apple.security.files.user-selected.read-only: true
+        com.apple.security.temporary-exception.files.absolute-path.read-only:
+          - /Library/Audio/Sounds/Banks/
+        com.apple.security.temporary-exception.files.home-relative-path.read-only:
+          - /Library/Audio/Sounds/Banks/
+    settings:
+      base:
+        PRODUCT_NAME: PortaSF2Extension
+        PRODUCT_BUNDLE_IDENTIFIER: com.local.portasf2.PortaSF2Extension
+        SKIP_INSTALL: true

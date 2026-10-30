@@ -1,0 +1,459 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		072F0AF0D82C226B8DF2E5AF /* PortaSF2Types.swift in Sources */ = {isa = PBXBuildFile; fileRef = D443BC7779E412E0512ADB31 /* PortaSF2Types.swift */; };
+		0B2ECE749E2112A7D396CD21 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 989FB75E42520007AF09456D /* ContentView.swift */; };
+		558481B9ED3230983D91B645 /* PortaSF2AudioUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 828A4C544570CCD84BFBD68D /* PortaSF2AudioUnit.swift */; };
+		61A97CFF379F3283FF076038 /* PluginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05457C824AFE94F8C28DB198 /* PluginView.swift */; };
+		6DC4922E423178BB1ADA2681 /* PortaSF2App.swift in Sources */ = {isa = PBXBuildFile; fileRef = F80BEB1B9E710784742877A0 /* PortaSF2App.swift */; };
+		87C403A2FE8DA222DE2ACBCF /* PluginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD8DB6C7A063592768F8CD24 /* PluginViewModel.swift */; };
+		ADAC97C4EC9EB948B75D120C /* SF2Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FD12A5A814DDD1CCB94D84C /* SF2Parser.swift */; };
+		BF1F4038C0E0D648E02F4CC0 /* PortaSF2Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AF1441E91BDC8CF673DD10F7 /* PortaSF2Extension.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		C3BFBBFE344FE65141BB4C50 /* AudioUnitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11F092196015AD7CDA927EAC /* AudioUnitViewController.swift */; };
+		C98860C5901E8DBD88AAC697 /* SF2Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FD12A5A814DDD1CCB94D84C /* SF2Parser.swift */; };
+		FC9C40FD453EDF5DF0D944FC /* PortaSF2Types.swift in Sources */ = {isa = PBXBuildFile; fileRef = D443BC7779E412E0512ADB31 /* PortaSF2Types.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		6FFE520BD100B4DD4818B520 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E54EDA89DA47AD9A54130182 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E0D51C4DC03D4DBD30E72B35;
+			remoteInfo = PortaSF2Extension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		8537B3F0BDCB973299F316D5 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				BF1F4038C0E0D648E02F4CC0 /* PortaSF2Extension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		05457C824AFE94F8C28DB198 /* PluginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PluginView.swift; sourceTree = "<group>"; };
+		11F092196015AD7CDA927EAC /* AudioUnitViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioUnitViewController.swift; sourceTree = "<group>"; };
+		3FD12A5A814DDD1CCB94D84C /* SF2Parser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SF2Parser.swift; sourceTree = "<group>"; };
+		752C99B55F647D58279CE5AA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		828A4C544570CCD84BFBD68D /* PortaSF2AudioUnit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortaSF2AudioUnit.swift; sourceTree = "<group>"; };
+		8ADD8B8E3ED4A2D8107CF8C6 /* PortaSF2Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PortaSF2Extension.entitlements; sourceTree = "<group>"; };
+		989FB75E42520007AF09456D /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		AD8DB6C7A063592768F8CD24 /* PluginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PluginViewModel.swift; sourceTree = "<group>"; };
+		AF1441E91BDC8CF673DD10F7 /* PortaSF2Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = PortaSF2Extension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		B9714C025C51FDEA605C203E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		CD063AECF8A69A98FCC77E15 /* PortaSF2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PortaSF2.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D443BC7779E412E0512ADB31 /* PortaSF2Types.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortaSF2Types.swift; sourceTree = "<group>"; };
+		F3B5C5789EB4D2537039B04F /* PortaSF2.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PortaSF2.entitlements; sourceTree = "<group>"; };
+		F80BEB1B9E710784742877A0 /* PortaSF2App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortaSF2App.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		280107D025CC6B95A44CA9F3 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				989FB75E42520007AF09456D /* ContentView.swift */,
+				B9714C025C51FDEA605C203E /* Info.plist */,
+				F3B5C5789EB4D2537039B04F /* PortaSF2.entitlements */,
+				F80BEB1B9E710784742877A0 /* PortaSF2App.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		44ABDE417ACB466D2AE5C9D5 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CD063AECF8A69A98FCC77E15 /* PortaSF2.app */,
+				AF1441E91BDC8CF673DD10F7 /* PortaSF2Extension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		59F6D068E689448408A3A5AC /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				D443BC7779E412E0512ADB31 /* PortaSF2Types.swift */,
+				3FD12A5A814DDD1CCB94D84C /* SF2Parser.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		8197A7236567A7D980F9B1C3 = {
+			isa = PBXGroup;
+			children = (
+				280107D025CC6B95A44CA9F3 /* App */,
+				FED4E42117D2E215E86C7614 /* Extension */,
+				59F6D068E689448408A3A5AC /* Shared */,
+				44ABDE417ACB466D2AE5C9D5 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		FED4E42117D2E215E86C7614 /* Extension */ = {
+			isa = PBXGroup;
+			children = (
+				11F092196015AD7CDA927EAC /* AudioUnitViewController.swift */,
+				752C99B55F647D58279CE5AA /* Info.plist */,
+				05457C824AFE94F8C28DB198 /* PluginView.swift */,
+				AD8DB6C7A063592768F8CD24 /* PluginViewModel.swift */,
+				828A4C544570CCD84BFBD68D /* PortaSF2AudioUnit.swift */,
+				8ADD8B8E3ED4A2D8107CF8C6 /* PortaSF2Extension.entitlements */,
+			);
+			path = Extension;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		0E10F0C6ED83683758E17DA7 /* PortaSF2 */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9073B3BA246510C776396C22 /* Build configuration list for PBXNativeTarget "PortaSF2" */;
+			buildPhases = (
+				73831FC6A36ED0EC610B9C76 /* Sources */,
+				8537B3F0BDCB973299F316D5 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E52C68109A274D97FEB70C3F /* PBXTargetDependency */,
+			);
+			name = PortaSF2;
+			packageProductDependencies = (
+			);
+			productName = PortaSF2;
+			productReference = CD063AECF8A69A98FCC77E15 /* PortaSF2.app */;
+			productType = "com.apple.product-type.application";
+		};
+		E0D51C4DC03D4DBD30E72B35 /* PortaSF2Extension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D28EB980E9C3A3EB27162227 /* Build configuration list for PBXNativeTarget "PortaSF2Extension" */;
+			buildPhases = (
+				ADEF294EE98BA934DF7D1071 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PortaSF2Extension;
+			packageProductDependencies = (
+			);
+			productName = PortaSF2Extension;
+			productReference = AF1441E91BDC8CF673DD10F7 /* PortaSF2Extension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E54EDA89DA47AD9A54130182 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					0E10F0C6ED83683758E17DA7 = {
+						ProvisioningStyle = Automatic;
+					};
+					E0D51C4DC03D4DBD30E72B35 = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 45E809081B4139E51F7005B1 /* Build configuration list for PBXProject "PortaSF2" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 8197A7236567A7D980F9B1C3;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 44ABDE417ACB466D2AE5C9D5 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				0E10F0C6ED83683758E17DA7 /* PortaSF2 */,
+				E0D51C4DC03D4DBD30E72B35 /* PortaSF2Extension */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		73831FC6A36ED0EC610B9C76 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0B2ECE749E2112A7D396CD21 /* ContentView.swift in Sources */,
+				6DC4922E423178BB1ADA2681 /* PortaSF2App.swift in Sources */,
+				072F0AF0D82C226B8DF2E5AF /* PortaSF2Types.swift in Sources */,
+				C98860C5901E8DBD88AAC697 /* SF2Parser.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		ADEF294EE98BA934DF7D1071 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C3BFBBFE344FE65141BB4C50 /* AudioUnitViewController.swift in Sources */,
+				61A97CFF379F3283FF076038 /* PluginView.swift in Sources */,
+				87C403A2FE8DA222DE2ACBCF /* PluginViewModel.swift in Sources */,
+				558481B9ED3230983D91B645 /* PortaSF2AudioUnit.swift in Sources */,
+				FC9C40FD453EDF5DF0D944FC /* PortaSF2Types.swift in Sources */,
+				ADAC97C4EC9EB948B75D120C /* SF2Parser.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		E52C68109A274D97FEB70C3F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E0D51C4DC03D4DBD30E72B35 /* PortaSF2Extension */;
+			targetProxy = 6FFE520BD100B4DD4818B520 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		1BBB083952CAF626B3CFBD70 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Extension/PortaSF2Extension.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = Extension/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.local.portasf2.PortaSF2Extension;
+				PRODUCT_NAME = PortaSF2Extension;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+		412691A4E34666E086032363 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		4CB15B703CF44388338AD2D1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Extension/PortaSF2Extension.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = Extension/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.local.portasf2.PortaSF2Extension;
+				PRODUCT_NAME = PortaSF2Extension;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		72A9260530BB1C4089D4830F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = App/PortaSF2.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.local.portasf2;
+				PRODUCT_NAME = PortaSF2;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		AD233ED781D80093D4F393C0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = App/PortaSF2.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.local.portasf2;
+				PRODUCT_NAME = PortaSF2;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		D7C6C2726C65D1C825B3A404 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		45E809081B4139E51F7005B1 /* Build configuration list for PBXProject "PortaSF2" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				412691A4E34666E086032363 /* Debug */,
+				D7C6C2726C65D1C825B3A404 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		9073B3BA246510C776396C22 /* Build configuration list for PBXNativeTarget "PortaSF2" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AD233ED781D80093D4F393C0 /* Debug */,
+				72A9260530BB1C4089D4830F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D28EB980E9C3A3EB27162227 /* Build configuration list for PBXNativeTarget "PortaSF2Extension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4CB15B703CF44388338AD2D1 /* Debug */,
+				1BBB083952CAF626B3CFBD70 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = E54EDA89DA47AD9A54130182 /* Project object */;
+}
