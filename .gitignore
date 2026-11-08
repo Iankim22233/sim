@@ -7,3 +7,4 @@ xcuserdata/
 *.ipa
 .swiftpm/
 invaders/.build/
+powershell/*.sb3
