@@ -6,3 +6,4 @@ xcuserdata/
 *.app/
 *.ipa
 .swiftpm/
+invaders/.build/
