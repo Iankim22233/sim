@@ -59,6 +59,32 @@ function toVmBlocks(data) {
   return out;
 }
 
+// Orange gradient border + label drawn over the editor so it's obvious when Claude has the wheel.
+const overlayJs = (text) => `(()=>{
+  document.getElementById('claude-overlay')?.remove();
+  const text = ${JSON.stringify(text)};
+  if (text === null) return 'overlay off';
+  const root = document.createElement('div'); root.id = 'claude-overlay';
+  root.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:2147483647;';
+  root.innerHTML = '<style>' +
+    '@keyframes claudeFlow{0%{background-position:0% 50%}100%{background-position:300% 50%}}' +
+    '@keyframes claudePulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.7)}}' +
+    '#claude-overlay .b{position:absolute;inset:0;border:5px solid transparent;border-radius:6px;' +
+      'background:linear-gradient(90deg,#ff7a18,#ffb347,#ff5e00,#ffc53d,#ff7a18) border-box;background-size:300% 100%;' +
+      'animation:claudeFlow 5s linear infinite;' +
+      '-webkit-mask:linear-gradient(#000 0 0) padding-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;' +
+      'box-shadow:inset 0 0 24px rgba(255,122,24,.45)}' +
+    '#claude-overlay .l{position:absolute;top:0;left:50%;transform:translateX(-50%);padding:5px 16px 6px;border-radius:0 0 12px 12px;' +
+      'background:linear-gradient(90deg,#ff7a18,#ffb347,#ff5e00);background-size:200% 100%;animation:claudeFlow 4s linear infinite;' +
+      'color:#fff;font:600 13px/1.2 -apple-system,BlinkMacSystemFont,system-ui,sans-serif;letter-spacing:.02em;' +
+      'display:flex;align-items:center;gap:8px;box-shadow:0 2px 10px rgba(255,94,0,.5);text-shadow:0 1px 2px rgba(0,0,0,.25)}' +
+    '#claude-overlay .d{width:8px;height:8px;border-radius:50%;background:#fff;animation:claudePulse 1.2s ease-in-out infinite}' +
+    '</style><div class="b"></div><div class="l"><span class="d"></span><span class="t"></span></div>';
+  root.querySelector('.t').textContent = text;
+  document.body.appendChild(root);
+  return 'overlay on';
+})()`;
+
 function fail(msg) { console.error(msg); process.exit(1); }
 
 async function evaluate(c, expression) {
@@ -72,7 +98,11 @@ const need = (n, usage) => { if (args.length < n) fail(`usage: twctl ${usage}`);
 
 const c = await connect();
 try {
+  // Show the "Claude is creating" border on every control call (disable with TW_OVERLAY=0).
+  if (cmd !== 'overlay' && process.env.TW_OVERLAY !== '0') await evaluate(c, overlayJs(process.env.TW_OVERLAY_TEXT || 'Claude is creating'));
   switch (cmd) {
+    case 'overlay': // overlay [on|off] ["text"]
+      console.log(await evaluate(c, overlayJs(args[0] === 'off' ? null : (args[1] || 'Claude is creating')))); break;
     case 'status':
       console.log(JSON.stringify(await evaluate(c, `({
         targets: vm.runtime.targets.filter(t=>t.isOriginal).map(t=>({name:t.getName(),stage:t.isStage,blocks:Object.keys(t.blocks._blocks).length})),
@@ -105,17 +135,26 @@ try {
         if('${act}'==='up'||'${act}'==='click') m({isDown:false});})()`);
       console.log(`mouse ${act} ${x},${y}`); break;
     }
-    case 'sprite': { // sprite <name> [color]   adds a simple circle sprite
-      need(1, 'sprite <name> [color]');
-      const color = args[1] || '#4c97ff';
-      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="${color}"/></svg>`;
+    case 'sprite': // sprite <name> [color|file.svg]   adds a sprite (default: blue circle)
+    case 'backdrop': { // backdrop <file.svg>        adds a backdrop and switches to it
+      need(1, cmd === 'sprite' ? 'sprite <name> [color|file.svg]' : 'backdrop <file.svg>');
+      const isBackdrop = cmd === 'backdrop';
+      const src = isBackdrop ? args[0] : args[1];
+      let svg, w = 40, h = 40;
+      if (src && src.endsWith('.svg')) {
+        svg = readFileSync(resolve(src), 'utf8');
+        w = +(svg.match(/\swidth="([\d.]+)/)?.[1] ?? 40); h = +(svg.match(/\sheight="([\d.]+)/)?.[1] ?? 40);
+      } else {
+        svg = `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="${src || '#4c97ff'}"/></svg>`;
+      }
       const md5 = createHash('md5').update(svg).digest('hex');
-      const r = await evaluate(c, `(async()=>{const st=vm.runtime.storage;
-        st.cache(st.AssetType.ImageVector, st.DataFormat.SVG, new TextEncoder().encode(${JSON.stringify(svg)}), ${JSON.stringify(md5)});
-        await vm.addSprite(JSON.stringify({name:${JSON.stringify(args[0])},isStage:false,variables:{},lists:{},broadcasts:{},blocks:{},currentCostume:0,
-          costumes:[{name:'costume1',dataFormat:'svg',assetId:'${md5}',md5ext:'${md5}.svg',bitmapResolution:1,rotationCenterX:20,rotationCenterY:20}],
-          sounds:[],volume:100,visible:true,x:0,y:0,size:100,direction:90,draggable:false,rotationStyle:'all around'}));
-        return 'added';})()`);
+      const cost = `{name:'costume1',dataFormat:'svg',assetId:'${md5}',md5ext:'${md5}.svg',bitmapResolution:1,rotationCenterX:${w / 2},rotationCenterY:${h / 2}}`;
+      const prep = `const st=vm.runtime.storage; st.cache(st.AssetType.ImageVector, st.DataFormat.SVG, new TextEncoder().encode(${JSON.stringify(svg)}), ${JSON.stringify(md5)});`;
+      const r = await evaluate(c, isBackdrop
+        ? `(async()=>{${prep} await vm.addBackdrop('${md5}.svg', ${cost.replace("'costume1'", "'backdrop'")});
+            const s=vm.runtime.getTargetForStage(); s.setCostume(s.sprite.costumes.length-1); return 'backdrop set';})()`
+        : `(async()=>{${prep} await vm.addSprite(JSON.stringify({name:${JSON.stringify(args[0])},isStage:false,variables:{},lists:{},broadcasts:{},blocks:{},currentCostume:0,
+            costumes:[${cost}],sounds:[],volume:100,visible:true,x:0,y:0,size:100,direction:90,draggable:false,rotationStyle:'all around'})); return 'added';})()`);
       console.log(r); break;
     }
     case 'get': { // get <spriteName>  -> blocks JSON
@@ -156,6 +195,6 @@ try {
       console.log(`saved ${args[0]}`); break;
     }
     default:
-      console.log(`twctl <status|eval|flag|stop|key|mouse|vars|load|export|screenshot|new|sprite|select|get|blocks> [args]\nPort: ${PORT} (TW_REMOTE_PORT)`);
+      console.log(`twctl <status|eval|flag|stop|key|mouse|vars|load|export|screenshot|overlay|new|sprite|backdrop|select|get|blocks> [args]\nPort: ${PORT} (TW_REMOTE_PORT)`);
   }
 } finally { c.close(); }

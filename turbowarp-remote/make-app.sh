@@ -21,6 +21,7 @@ mkdir -p "\$PROFILE"
 exec "$TW_APP/Contents/MacOS/TurboWarp" \\
   --remote-debugging-port="\$PORT" \\
   --remote-allow-origins=http://localhost:\$PORT \\
+  --disable-renderer-backgrounding --disable-background-timer-throttling --disable-backgrounding-occluded-windows \\
   --user-data-dir="\$PROFILE" "\$@"
 LAUNCH
 chmod +x "$APP/Contents/MacOS/TurboWarpRemote"
