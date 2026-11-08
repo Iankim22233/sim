@@ -24,8 +24,9 @@ const SEP = '\u00b6';   // line separator inside file contents
 
 const VARS = ['cwd', 'HOME', 'Tok', 'Rest', 'Cmd', 'Args', 'Done', 'Input', 'PI', 'chunk', 'SI', 'Tail', 'TJ', 'Head', 'HJ', 'PadRes',
   'Src', 'Tmp', 'EI', 'Exp', 'c2', 'VN', 'VI', 'P0', 'sb', 'PJ', 'chr', 'Acc', 'Parent', 'Name', 'Full', 'k', 'Idx', 'PIdx', 'R', 'Col',
-  'Line', 'ch', 'Swept', 'OI', 'PL', 'QI', 'RP', 'App', 'FromI', 'ExpText', 'FileArg', 'NT', 'AN', 'AI', 'LI', 'mm', 'ss'];
-const LISTS = ['Screen', 'FSPath', 'FSParent', 'FSName', 'FSType', 'FSData', 'Seg', 'VarNames', 'VarVals'];
+  'Line', 'ch', 'Swept', 'OI', 'PL', 'QI', 'RP', 'App', 'FromI', 'ExpText', 'FileArg', 'NT', 'AN', 'AI', 'LI', 'mm', 'ss',
+  'ch3', 'dep', 'Fin', 'Sub', 'CE', 'CI', 'cch', 'nb', 'xo', 'GoOn', 'PA', 'PB', 'PR', 'OpT', 'NA', 'NB', 'NR', 'CVN', 'CVI', 'Calc'];
+const LISTS = ['Screen', 'FSPath', 'FSParent', 'FSName', 'FSType', 'FSData', 'Seg', 'VarNames', 'VarVals', 'Nums', 'Ops'];
 const vid = n => `var_${n}`, lid = n => `list_${n}`;
 
 // ---------- glyph set ----------
@@ -113,6 +114,7 @@ function dsl() {
     len: s => mk('operator_length', { inputs: { STRING: s } }),
     contains: bin('operator_contains', 'STRING1', 'STRING2'),
     add: bin('operator_add', 'NUM1', 'NUM2'), sub: bin('operator_subtract', 'NUM1', 'NUM2'), mul: bin('operator_multiply', 'NUM1', 'NUM2'),
+    div: bin('operator_divide', 'NUM1', 'NUM2'), mod: bin('operator_mod', 'NUM1', 'NUM2'),
     eq: bin('operator_equals', 'OPERAND1', 'OPERAND2'), gt: bin('operator_gt', 'OPERAND1', 'OPERAND2'), lt: bin('operator_lt', 'OPERAND1', 'OPERAND2'),
     and: boolBin('operator_and'), or: boolBin('operator_or'),
     not: a => mk('operator_not', { inputs: { OPERAND: C(a) } }),
@@ -121,7 +123,7 @@ function dsl() {
 
 const F = dsl();
 const { T, chain, script, proc, arg, flag, forever, if_, ifElse, repeat, repeatUntil, stopAll, hide, gotoXY, switchCostume, penClear, stamp, ask, answer,
-  current, set, change, v, addTo, delAll, delAt, replaceAt, itemOf, itemNum, lenList, join, letterOf, len, contains, add, sub, mul, eq, gt, lt, and, or, not } = F;
+  current, set, change, v, addTo, delAll, delAt, replaceAt, itemOf, itemNum, lenList, join, letterOf, len, contains, add, sub, mul, div, mod, eq, gt, lt, and, or, not } = F;
 const J = (...p) => p.reduceRight((acc, x) => join(x, acc));      // join(a, join(b, c))
 
 // ---------- custom blocks ----------
@@ -129,7 +131,8 @@ const redraw = proc('redraw', []), print = proc('print', ['text']), split = proc
   head = proc('head', ['text', 'count']), lpad = proc('lpad', ['text', 'width']), expand = proc('expand', ['text']),
   resolve = proc('resolve', ['path']), mkentry = proc('mkentry', ['path', 'parent', 'name', 'type', 'data']),
   makeitem = proc('makeitem', ['path', 'type']), writefile = proc('writefile', ['path', 'text', 'append']),
-  printlines = proc('printlines', ['text']), sweep = proc('sweep', []), skipflags = proc('skipflags', ['text']);
+  printlines = proc('printlines', ['text']), sweep = proc('sweep', []), skipflags = proc('skipflags', ['text']),
+  calc = proc('calc', ['text']), applyop = proc('applyop', []), prec = proc('prec', ['op']);
 
 // redraw: wipe the pen layer and stamp every character of Screen
 redraw.define([
@@ -189,7 +192,70 @@ lpad.define([
   repeatUntil(not(lt(len(v('PadRes')), arg('width'))), set('PadRes', join(T(' '), v('PadRes')))),
 ]);
 
-// expand: Exp = text with surrounding quotes removed and $name / $PWD / $HOME substituted
+// ---- arithmetic: operator-precedence evaluation with a number stack (Nums) and an operator stack (Ops) ----
+// prec: PR = precedence of an operator ( + - = 1, * / % = 2, anything else 0 )
+prec.define([
+  set('PR', 0),
+  if_(contains(T('+-'), arg('op')), set('PR', 1)),
+  if_(contains(T('*/%'), arg('op')), set('PR', 2)),
+]);
+// applyop: pop an operator and two numbers, push the result (CE = 2 on divide by zero, 1 on a stray "(")
+applyop.define([
+  if_(lt(lenList('Nums'), 2), set('CE', 1)),                    // operator without two operands, e.g. "2 +"
+  set('OpT', itemOf('Ops', lenList('Ops'))), delAt('Ops', lenList('Ops')),
+  set('NB', itemOf('Nums', lenList('Nums'))), delAt('Nums', lenList('Nums')),
+  set('NA', itemOf('Nums', lenList('Nums'))), delAt('Nums', lenList('Nums')),
+  set('NR', 0),
+  if_(eq(v('OpT'), T('(')), set('CE', 1)),
+  if_(eq(v('OpT'), T('+')), set('NR', add(v('NA'), v('NB')))),
+  if_(eq(v('OpT'), T('-')), set('NR', sub(v('NA'), v('NB')))),
+  if_(eq(v('OpT'), T('*')), set('NR', mul(v('NA'), v('NB')))),
+  if_(eq(v('OpT'), T('/')), ifElse(eq(v('NB'), 0), set('CE', 2), set('NR', div(v('NA'), v('NB'))))),
+  if_(eq(v('OpT'), T('%')), ifElse(eq(v('NB'), 0), set('CE', 2), set('NR', mod(v('NA'), v('NB'))))),
+  addTo('Nums', v('NR')),
+]);
+// calc: Calc = value of the expression; CE = 0 ok, 1 syntax error, 2 divide by zero (already reported)
+calc.define([
+  delAll('Nums'), delAll('Ops'), set('CE', 0), set('nb', T('')), set('xo', 1), set('CI', 1), set('Calc', T('')),
+  repeatUntil(gt(v('CI'), len(arg('text'))), chain([
+    set('cch', letterOf(v('CI'), arg('text'))),
+    ifElse(contains(T('0123456789.'), v('cch')), set('nb', join(v('nb'), v('cch'))),
+      ifElse(eq(v('cch'), T('$')), chain([                       // $variable inside an expression
+        set('CVN', T('')), change('CI', 1),
+        repeatUntil(or(gt(v('CI'), len(arg('text'))), not(contains(T(ALLOWED), letterOf(v('CI'), arg('text'))))),
+          chain([set('CVN', join(v('CVN'), letterOf(v('CI'), arg('text')))), change('CI', 1)])),
+        change('CI', -1),
+        set('CVI', itemNum('VarNames', v('CVN'))),
+        ifElse(gt(v('CVI'), 0), set('nb', join(v('nb'), itemOf('VarVals', v('CVI')))),
+          ifElse(eq(v('CVN'), T('PWD')), set('nb', join(v('nb'), v('cwd'))),
+            ifElse(eq(v('CVN'), T('HOME')), set('nb', join(v('nb'), v('HOME'))), set('CE', 1)))),   // unknown variable
+      ]), chain([
+        if_(gt(len(v('nb')), 0), chain([addTo('Nums', v('nb')), set('nb', T('')), set('xo', 0)])),
+        if_(not(contains(T('0123456789.()+-*/% '), v('cch'))), set('CE', 1)),
+        if_(eq(v('cch'), T('(')), chain([addTo('Ops', T('(')), set('xo', 1)])),
+        if_(eq(v('cch'), T(')')), chain([
+          repeatUntil(or(eq(lenList('Ops'), 0), eq(itemOf('Ops', lenList('Ops')), T('('))), applyop.call()),
+          if_(gt(lenList('Ops'), 0), delAt('Ops', lenList('Ops'))), set('xo', 0),
+        ])),
+        if_(contains(T('+-*/%'), v('cch')),
+          ifElse(eq(v('xo'), 1), if_(eq(v('cch'), T('-')), set('nb', T('-'))), chain([   // unary minus, or a binary operator
+            prec.call(v('cch')), set('PB', v('PR')), set('GoOn', 1),
+            repeatUntil(eq(v('GoOn'), 0), ifElse(eq(lenList('Ops'), 0), set('GoOn', 0), chain([
+              prec.call(itemOf('Ops', lenList('Ops'))), set('PA', v('PR')),
+              ifElse(lt(v('PA'), v('PB')), set('GoOn', 0), applyop.call()),
+            ]))),
+            addTo('Ops', v('cch')), set('xo', 1),
+          ]))),
+      ]))),
+    change('CI', 1),
+  ])),
+  if_(gt(len(v('nb')), 0), addTo('Nums', v('nb'))),
+  repeatUntil(eq(lenList('Ops'), 0), applyop.call()),
+  ifElse(and(eq(v('CE'), 0), eq(lenList('Nums'), 1)), set('Calc', itemOf('Nums', 1)), if_(eq(v('CE'), 0), set('CE', 1))),
+  if_(eq(v('CE'), 2), print.call(T('RuntimeException: Attempted to divide by zero.'))),
+]);
+
+// expand: Exp = text with surrounding quotes removed, $(...) evaluated, and $name / $PWD / $HOME substituted
 expand.define([
   set('Src', arg('text')),
   if_(and(gt(len(v('Src')), 1), or(eq(letterOf(1, v('Src')), T('"')), eq(letterOf(1, v('Src')), T("'")))),
@@ -201,7 +267,20 @@ expand.define([
   set('Exp', T('')), set('EI', 1),
   repeatUntil(gt(v('EI'), len(v('Src'))), chain([
     set('c2', letterOf(v('EI'), v('Src'))),
-    ifElse(eq(v('c2'), T('$')), chain([
+    ifElse(eq(v('c2'), T('$')), ifElse(eq(letterOf(add(v('EI'), 1), v('Src')), T('(')), chain([
+      // $( ... ): collect up to the matching ")" and evaluate it
+      change('EI', 1), set('dep', 0), set('Fin', 0), set('Sub', T('')),
+      repeatUntil(or(gt(v('EI'), len(v('Src'))), eq(v('Fin'), 1)), chain([
+        set('ch3', letterOf(v('EI'), v('Src'))), set('Sub', join(v('Sub'), v('ch3'))),
+        if_(eq(v('ch3'), T('(')), change('dep', 1)),
+        if_(eq(v('ch3'), T(')')), chain([change('dep', -1), if_(eq(v('dep'), 0), set('Fin', 1))])),
+        change('EI', 1),
+      ])),
+      ifElse(eq(v('Fin'), 1), chain([
+        calc.call(v('Sub')),
+        ifElse(eq(v('CE'), 0), set('Exp', join(v('Exp'), v('Calc'))), if_(eq(v('CE'), 1), set('Exp', J(v('Exp'), T('$'), v('Sub'))))),
+      ]), set('Exp', J(v('Exp'), T('$'), v('Sub')))),
+    ]), chain([
       set('VN', T('')), change('EI', 1),
       repeatUntil(or(gt(v('EI'), len(v('Src'))), not(contains(T(ALLOWED), letterOf(v('EI'), v('Src'))))),
         chain([set('VN', join(v('VN'), letterOf(v('EI'), v('Src')))), change('EI', 1)])),
@@ -211,7 +290,7 @@ expand.define([
         if_(eq(v('VN'), T('PWD')), set('Exp', join(v('Exp'), v('cwd')))),
         if_(eq(v('VN'), T('HOME')), set('Exp', join(v('Exp'), v('HOME')))),
       ])),
-    ]), chain([set('Exp', join(v('Exp'), v('c2'))), change('EI', 1)])),
+    ])), chain([set('Exp', join(v('Exp'), v('c2'))), change('EI', 1)])),
   ])),
 ]);
 
@@ -323,6 +402,7 @@ const branches = [
     P('  New-Item [ni] <name> [-ItemType Directory]'), P('  mkdir [md] <name>   Remove-Item [rm del ri] <path>'),
     P('  Get-Content [cat type gc] <file>'), P('  Set-Content [sc] / Add-Content [ac] <file> <text>'),
     P('  Write-Host [echo] <text> [> file] [>> file]'), P('  $name = value   then use $name (also $PWD, $HOME)'),
+    P('  5 + 10   echo $((2*3))   math: + - * / % ( ) $name'),
     P('  Get-Date   whoami   hostname   Clear-Host [cls]   exit'),
   ]),
   on(['cls', 'clear', 'Clear-Host'], [delAll('Screen')]),
@@ -405,7 +485,18 @@ const dollar = if_(and(eq(v('Done'), 0), eq(letterOf(1, v('Cmd')), T('$'))), cha
     tail.call(v('Input'), v('AI')), expand.call(v('Tail')),
     set('FromI', itemNum('VarNames', v('AN'))),
     ifElse(eq(v('FromI'), 0), chain([addTo('VarNames', v('AN')), addTo('VarVals', v('Exp'))]), replaceAt('VarVals', v('FromI'), v('Exp'))),
-  ]), chain([expand.call(v('Input')), print.call(v('Exp'))])),
+  ]), chain([                                                   // "$x", "$x * 2", "$(1+2)": try arithmetic first, else plain expansion
+    calc.call(v('Input')),
+    ifElse(eq(v('CE'), 0), print.call(v('Calc')), if_(eq(v('CE'), 1), chain([expand.call(v('Input')), print.call(v('Exp'))]))),
+  ])),
+  set('Done', 1),
+]));
+
+// a line that starts with a digit, "(" or "-" is an arithmetic expression: "5 + 10", "(2+3)*4"
+const arith = if_(and(and(eq(v('Done'), 0), gt(len(v('Cmd')), 0)), contains(T('0123456789(-'), letterOf(1, v('Cmd')))), chain([
+  calc.call(v('Input')),
+  if_(eq(v('CE'), 0), print.call(v('Calc'))),
+  if_(eq(v('CE'), 1), print.call(T('ParserError: Unexpected token in expression.'))),
   set('Done', 1),
 ]));
 
@@ -429,7 +520,7 @@ script([
     print.call(J(T('PS '), v('cwd'), T('> '), v('Input'))),
     if_(gt(len(v('Input')), 0), chain([
       set('Done', 0), split.call(v('Input')), set('Cmd', v('Tok')), set('Args', v('Rest')),
-      dollar, ...branches, unknown,
+      if_(gt(len(v('Cmd')), 0), chain([dollar, arith, ...branches, unknown])),
     ])),
   ])),
 ]);
