@@ -3,6 +3,7 @@
 // Talks to the editor page over the Chrome DevTools Protocol and drives window.vm.
 import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { createHash } from 'node:crypto';
 
 const PORT = process.env.TW_REMOTE_PORT || '9333';
 const [cmd, ...args] = process.argv.slice(2);
@@ -24,6 +25,38 @@ async function connect() {
     const i = ++id; pending.set(i, ok); ws.send(JSON.stringify({ id: i, method, params }));
   });
   return { send, close: () => ws.close() };
+}
+
+
+// Convert project.json-style blocks (compact inputs like [1,[4,"50"]]) into the VM's in-memory
+// format (explicit shadow blocks), which is what vm.shareBlocksToTarget expects.
+function toVmBlocks(data) {
+  const entries = Array.isArray(data) ? data.map(b => [b.id, b]) : Object.entries(data);
+  const out = [];
+  const PRIM = { 4: ['math_number', 'NUM'], 5: ['math_positive_number', 'NUM'], 6: ['math_whole_number', 'NUM'],
+    7: ['math_integer', 'NUM'], 8: ['math_angle', 'ANGLE'], 9: ['colour_picker', 'COLOUR'], 10: ['text', 'TEXT'] };
+  for (const [id, b] of entries) {
+    const inputs = {};
+    for (const [name, v] of Object.entries(b.inputs || {})) {
+      if (!Array.isArray(v)) { inputs[name] = v; continue; }       // already VM format
+      const [kind, main, shadow] = v;
+      const mk = (prim) => {                                         // primitive -> shadow block
+        const [op, field] = PRIM[prim[0]] || PRIM[10];
+        const sid = `${id}_${name}_s`;
+        out.push({ id: sid, opcode: op, inputs: {}, fields: { [field]: { name: field, value: String(prim[1]) } }, next: null, parent: id, shadow: true, topLevel: false });
+        return sid;
+      };
+      if (Array.isArray(main)) { const sid = mk(main); inputs[name] = { name, block: sid, shadow: sid }; }
+      else {                                                         // block reference (+ optional shadow)
+        let sh = null; if (Array.isArray(shadow)) sh = mk(shadow); else if (typeof shadow === 'string') sh = shadow;
+        inputs[name] = { name, block: main, shadow: kind === 1 ? main : sh };
+      }
+    }
+    const fields = {};
+    for (const [name, v] of Object.entries(b.fields || {})) fields[name] = Array.isArray(v) ? { name, value: v[0], ...(v[1] ? { id: v[1] } : {}) } : v;
+    out.push({ ...b, id, inputs, fields });
+  }
+  return out;
 }
 
 function fail(msg) { console.error(msg); process.exit(1); }
@@ -59,6 +92,47 @@ try {
         vm.postIOData('keyboard',{key:${JSON.stringify(k)},isDown:false});})()`);
       console.log(`key ${k}`); break;
     }
+    case 'new':
+      await evaluate(c, `(async()=>{const r=await fetch('data:application/json,'+encodeURIComponent(JSON.stringify({targets:[{isStage:true,name:'Stage',variables:{},lists:{},broadcasts:{},blocks:{},currentCostume:0,costumes:[{name:'backdrop1',dataFormat:'svg',assetId:'cd21514d0531fdffb22204e0ec5ed84a',md5ext:'cd21514d0531fdffb22204e0ec5ed84a.svg',rotationCenterX:240,rotationCenterY:180}],sounds:[],volume:100,layerOrder:0,tempo:60,videoTransparency:50,videoState:'on',textToSpeechLanguage:null}],monitors:[],extensions:[],meta:{semver:'3.0.0',vm:'0.2.0',agent:''}})));
+        await vm.loadProject(await r.text());})()`);
+      console.log('new empty project'); break;
+    case 'mouse': { // mouse <x> <y> [down|up|click]  (Scratch stage coords, -240..240 / -180..180)
+      need(2, 'mouse <x> <y> [down|up|click]');
+      const [x, y, act = 'move'] = args;
+      await evaluate(c, `(async()=>{const m=(o)=>vm.postIOData('mouse',Object.assign({x:${+x}+240,y:180-(${+y}),canvasWidth:480,canvasHeight:360},o));
+        m({}); if('${act}'==='down'||'${act}'==='click') m({isDown:true});
+        if('${act}'==='click'){await new Promise(r=>setTimeout(r,80));}
+        if('${act}'==='up'||'${act}'==='click') m({isDown:false});})()`);
+      console.log(`mouse ${act} ${x},${y}`); break;
+    }
+    case 'sprite': { // sprite <name> [color]   adds a simple circle sprite
+      need(1, 'sprite <name> [color]');
+      const color = args[1] || '#4c97ff';
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="${color}"/></svg>`;
+      const md5 = createHash('md5').update(svg).digest('hex');
+      const r = await evaluate(c, `(async()=>{const st=vm.runtime.storage;
+        st.cache(st.AssetType.ImageVector, st.DataFormat.SVG, new TextEncoder().encode(${JSON.stringify(svg)}), ${JSON.stringify(md5)});
+        await vm.addSprite(JSON.stringify({name:${JSON.stringify(args[0])},isStage:false,variables:{},lists:{},broadcasts:{},blocks:{},currentCostume:0,
+          costumes:[{name:'costume1',dataFormat:'svg',assetId:'${md5}',md5ext:'${md5}.svg',bitmapResolution:1,rotationCenterX:20,rotationCenterY:20}],
+          sounds:[],volume:100,visible:true,x:0,y:0,size:100,direction:90,draggable:false,rotationStyle:'all around'}));
+        return 'added';})()`);
+      console.log(r); break;
+    }
+    case 'get': { // get <spriteName>  -> blocks JSON
+      need(1, 'get <sprite>');
+      console.log(JSON.stringify(await evaluate(c, `vm.runtime.targets.find(t=>t.isOriginal&&t.getName()===${JSON.stringify(args[0])})?.blocks._blocks`), null, 1)); break;
+    }
+    case 'blocks': { // blocks <sprite> <blocks.json>  (array or id->block object, Scratch project.json format)
+      need(2, 'blocks <sprite> <blocks.json>');
+      const data = JSON.parse(readFileSync(resolve(args[1]), 'utf8'));
+      const arr = toVmBlocks(data);
+      console.log(JSON.stringify(await evaluate(c, `(async()=>{const t=vm.runtime.targets.find(t=>t.isOriginal&&t.getName()===${JSON.stringify(args[0])});
+        if(!t) return 'no such sprite'; await vm.shareBlocksToTarget(${JSON.stringify(arr)}, t.id); vm.emitWorkspaceUpdate(); return 'added '+${arr.length}+' blocks';})()`))); break;
+    }
+    case 'select': // select <sprite>  switch the editor to a sprite
+      need(1, 'select <sprite>');
+      console.log(await evaluate(c, `(()=>{const t=vm.runtime.targets.find(t=>t.isOriginal&&t.getName()===${JSON.stringify(args[0])});
+        if(!t) return 'no such sprite'; vm.setEditingTarget(t.id); return 'editing '+t.getName();})()`)); break;
     case 'vars':
       console.log(JSON.stringify(await evaluate(c, `Object.fromEntries(Object.values(vm.runtime.getTargetForStage().variables).map(v=>[v.name,v.value]))`), null, 2)); break;
     case 'load': { // load <file.sb3>
@@ -82,6 +156,6 @@ try {
       console.log(`saved ${args[0]}`); break;
     }
     default:
-      console.log(`twctl <status|eval|flag|stop|key|vars|load|export|screenshot> [args]\nPort: ${PORT} (TW_REMOTE_PORT)`);
+      console.log(`twctl <status|eval|flag|stop|key|mouse|vars|load|export|screenshot|new|sprite|select|get|blocks> [args]\nPort: ${PORT} (TW_REMOTE_PORT)`);
   }
 } finally { c.close(); }
